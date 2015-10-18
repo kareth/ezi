@@ -6,6 +6,9 @@
 #include "io/input_file_reader_interface.h"
 #include "io/text_file_input_reader.h"
 
+#include "io/stemmer_interface.h"
+#include "io/porter_stemmer.h"
+
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -16,10 +19,13 @@ int main(int argc, char* argv[]) {
 		= inputFileReaderPtr->readKeywords("data/keywords.txt");
 	if (keywordsVectorPtr == nullptr) return EXIT_FAILURE;
 
+	unique_ptr<StemmerInterface> stemmerPtr(new PorterStemmer);
+
 	cout << "keywords:" << endl;
 	for (size_t i=0; i<keywordsVectorPtr->size(); ++i) {
 		cout
 			<< "'" << keywordsVectorPtr->at(i) << "'"
+			<< " " "'" << stemmerPtr->stem(keywordsVectorPtr->at(i)) << "'"
 			<< endl;
 	}
 
@@ -32,6 +38,7 @@ int main(int argc, char* argv[]) {
 		for (size_t j=0; j<documentsVectorPtr->at(i).size(); ++j) {
 			cout
 				<< "'" << documentsVectorPtr->at(i)[j] << "'"
+				<< " " "'" << stemmerPtr->stem(documentsVectorPtr->at(i)[j]) << "'"
 				<< endl;
 		}
 	}
