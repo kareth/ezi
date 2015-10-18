@@ -5,6 +5,7 @@ set(SRCS_MAIN
 )
 
 set(LIBS_MAIN
+	io
 	${Boost_PROGRAM_OPTIONS_LIBRARY}
 )
 

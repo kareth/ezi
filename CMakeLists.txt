@@ -1,4 +1,4 @@
-project(tsp)
+project(ezi)
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -16,4 +16,5 @@ include_directories(
 )
 
 # add new directories here
+add_subdirectory(src/io)
 add_subdirectory(src/main)
