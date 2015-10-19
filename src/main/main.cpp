@@ -1,47 +1,53 @@
 #include <iostream>
 #include <memory>
+#include <set>
 #include <string>
+#include <sstream>
 #include <vector>
 
-#include "io/input_file_reader_interface.h"
-#include "io/text_file_input_reader.h"
+#include "io/input_reader_interface.h"
+#include "io/text_input_reader.h"
 
 #include "io/stemmer_interface.h"
 #include "io/porter_stemmer.h"
+
+#include "db/document_database.h"
+
+#include "engine/search_engine.h"
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
 	cout << "Hello, ezi!" << endl;
 
-	unique_ptr<InputFileReaderInterface> inputFileReaderPtr(new TextFileInputReader);
-	shared_ptr<vector<string>> keywordsVectorPtr
-		= inputFileReaderPtr->readKeywords("data/keywords.txt");
-	if (keywordsVectorPtr == nullptr) return EXIT_FAILURE;
-
+	unique_ptr<InputReaderInterface> inputReaderPtr(new TextInputReader);
 	unique_ptr<StemmerInterface> stemmerPtr(new PorterStemmer);
 
-	cout << "keywords:" << endl;
-	for (size_t i=0; i<keywordsVectorPtr->size(); ++i) {
-		cout
-			<< "'" << keywordsVectorPtr->at(i) << "'"
-			<< " " "'" << stemmerPtr->stem(keywordsVectorPtr->at(i)) << "'"
-			<< endl;
-	}
+	shared_ptr<DocumentBuilder> documentBuilder
+		= make_shared<DocumentBuilder>(move(inputReaderPtr), move(stemmerPtr));
 
-	shared_ptr<vector<vector<string>>> documentsVectorPtr
-		= inputFileReaderPtr->readDocuments("data/documents.txt");
-	if (documentsVectorPtr == nullptr) return EXIT_FAILURE;
+	ifstream keywordsFile("data/keywords.txt");
+	ifstream documentsFile("data/documents.txt");
+	DocumentDatabaseBuilder databaseBuilder(documentBuilder);
+	shared_ptr<DocumentDatabase> dbPtr
+		= databaseBuilder.create(keywordsFile, documentsFile);
+	if (dbPtr == nullptr) return EXIT_FAILURE;
 
-	for (size_t i=0; i<documentsVectorPtr->size(); ++i) {
-		cout << "document " << i << ":" << endl;
-		for (size_t j=0; j<documentsVectorPtr->at(i).size(); ++j) {
-			cout
-				<< "'" << documentsVectorPtr->at(i)[j] << "'"
-				<< " " "'" << stemmerPtr->stem(documentsVectorPtr->at(i)[j]) << "'"
-				<< endl;
-		}
-	}
+	SearchEngine engine(dbPtr);
+
+///////////
+
+	auto rank = [&](const string& str) {
+		// cout << "query: " << str << endl;
+		stringstream ss; ss << str;
+		engine.rank(documentBuilder->createOne(ss));
+	};
+
+	/*for (size_t i=0; i<1000; i++) {
+		rank("ml");
+	}*/
+	rank("information retrieval");
+	rank("agency");
 
 	return EXIT_SUCCESS;
 }

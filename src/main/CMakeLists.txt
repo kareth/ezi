@@ -5,6 +5,8 @@ set(SRCS_MAIN
 )
 
 set(LIBS_MAIN
+	db
+	engine
 	io
 	${Boost_PROGRAM_OPTIONS_LIBRARY}
 )

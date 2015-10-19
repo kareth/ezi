@@ -1,55 +1,24 @@
-#include "io/text_file_input_reader.h"
+#include "io/text_input_reader.h"
 
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
 using namespace std;
 
-shared_ptr<vector<string>>
-TextFileInputReader::readKeywords(string filename) {
-	shared_ptr<vector<string>> keywordsVectorPtr = make_shared<vector<string>>();
-
-	fstream file;
-	file.open(filename, ios::in);
-	if (!file.good()) {
-		cerr << "Error while openning an input file." << endl;
-		return nullptr;
-	}
-
-	while (file.good()) {
-		string keyword;
-		file >> keyword;
-		normalize(keyword);
-		if (!keyword.empty()) {
-			keywordsVectorPtr->push_back(keyword);
-		}
-	}
-
-	file.close();
-
-	return keywordsVectorPtr;
-}
-
-shared_ptr<vector<vector<string>>>
-TextFileInputReader::readDocuments(std::string filename) {
-	shared_ptr<vector<vector<string>>> documentsVectorPtr
-		= make_shared<vector<vector<string>>>();
-
-	fstream file;
-	file.open(filename, ios::in);
-	if (!file.good()) {
-		cerr << "Error while openning an input file." << endl;
-		return nullptr;
-	}
+shared_ptr<vector<shared_ptr<vector<string>>>>
+TextInputReader::read(std::istream& is) {
+	shared_ptr<vector<shared_ptr<vector<string>>>> docsPtr
+		= make_shared<vector<shared_ptr<vector<string>>>>();
 
 	vector<string> document;
-	while (file.good()) {
+	while (is.good()) {
 		string line;
-		getline(file, line);
+		getline(is, line);
 		trim(line);
 		if (!line.empty()) {
 			vector<string> vs = split(line);
@@ -62,15 +31,19 @@ TextFileInputReader::readDocuments(std::string filename) {
 			document.insert(document.end(), vs.begin(), vs.end());
 			// for (string el : vs) cout << "'" << el << "'" " "; cout << endl;
 		} else if (!document.empty()) {
-			documentsVectorPtr->push_back(document);
+			docsPtr->push_back(make_shared<vector<string>>(document));
 			document.clear();
 		}
 	}
 
-	return documentsVectorPtr;
+	if (!document.empty()) {
+		docsPtr->push_back(make_shared<vector<string>>(document));
+	}
+
+	return docsPtr;
 }
 
-string& TextFileInputReader::trim(string& str) {
+string& TextInputReader::trim(string& str) {
 	auto it1 = find_if(str.rbegin(), str.rend(), [](char ch) {
 		return !isspace<char>(ch, locale::classic());
 	} );
@@ -84,7 +57,7 @@ string& TextFileInputReader::trim(string& str) {
 	return str;
 }
 
-vector<string> TextFileInputReader::split(const string& str, int delimiter(int)) {
+vector<string> TextInputReader::split(const string& str, int delimiter(int)) {
 	vector<string> result;
 	auto e = str.end();
 	auto i = str.begin();
@@ -98,7 +71,7 @@ vector<string> TextFileInputReader::split(const string& str, int delimiter(int))
 	return result;
 }
 
-string& TextFileInputReader::normalize(string& str) {
+string& TextInputReader::normalize(string& str) {
 	trim(str);
 
 	transform(str.begin(), str.end(), str.begin(), ::tolower);

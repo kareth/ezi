@@ -16,5 +16,7 @@ include_directories(
 )
 
 # add new directories here
+add_subdirectory(src/db)
+add_subdirectory(src/engine)
 add_subdirectory(src/io)
 add_subdirectory(src/main)
