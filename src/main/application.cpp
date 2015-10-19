@@ -52,12 +52,12 @@ int Application::run() {
 
 ///////////////
 
-	/*for (auto str : programOptionsPtr->queries) {
+	for (auto str : programOptionsPtr->queries) {
 		rank(str);
-	}*/
-	for (size_t i=0; i<1000; ++i) {
-		rank("ml");
 	}
+	/*for (size_t i=0; i<1000; ++i) {
+		rank("ml");
+	}*/
 
 	return EXIT_SUCCESS;
 }
