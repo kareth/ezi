@@ -7,12 +7,14 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 class SearchEngine {
 public:
 	SearchEngine(std::shared_ptr<DocumentDatabase>);
-	void rank(std::shared_ptr<Document> query);
+	std::vector<std::pair<std::shared_ptr<Document>, double>> rank(
+		std::shared_ptr<Document> query);
 
 protected:
 	virtual double similarity(const std::unordered_map<std::string, double>&,

@@ -1,6 +1,8 @@
 #include "engine/search_engine.h"
 
+#include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -24,7 +26,8 @@ SearchEngine::SearchEngine(shared_ptr<DocumentDatabase> dbPtr)
 	calculateIDFsMap();
 }
 
-void SearchEngine::rank(shared_ptr<Document> query) {
+vector<pair<shared_ptr<Document>, double>>
+SearchEngine::rank(shared_ptr<Document> query) {
 
 	unordered_map<string, double> queryBagOfWords;
 	calculateBagOfWordsMap(query, queryBagOfWords);
@@ -37,15 +40,27 @@ void SearchEngine::rank(shared_ptr<Document> query) {
 		}
 	}
 
+	vector<pair<shared_ptr<Document>, double>> result;
+	result.reserve(candidates.size());
+
 	for (shared_ptr<Document> docPtr : candidates) {
-		cout
-			<< "sim(Q,D" << docPtr->getId() << ") "
-			<< similarity(queryBagOfWords,
+		result.emplace_back(
+			make_pair(
+				docPtr,
+				similarity(queryBagOfWords,
 					calculateMaxTF(query, queryBagOfWords),
 					bagOfWords[docPtr],
 					maxTF[docPtr])
-			<< endl;
+			));
 	}
+
+	sort(result.begin(), result.end(),
+		[](const pair<shared_ptr<Document>, double>& a,
+				const pair<shared_ptr<Document>, double>& b) -> bool {
+			return a.second > b.second;
+		});
+
+	return result;
 }
 
 double SearchEngine::similarity(

@@ -18,7 +18,6 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	cout << "Hello, ezi!" << endl;
 
 	unique_ptr<InputReaderInterface> inputReaderPtr(new TextInputReader);
 	unique_ptr<StemmerInterface> stemmerPtr(new PorterStemmer);
@@ -38,14 +37,21 @@ int main(int argc, char* argv[]) {
 ///////////
 
 	auto rank = [&](const string& str) {
-		// cout << "query: " << str << endl;
+		cout << "query: " << str << endl;
 		stringstream ss; ss << str;
-		engine.rank(documentBuilder->createOne(ss));
+		auto vec = engine.rank(documentBuilder->createOne(ss));
+		for (auto el : vec) {
+			cout
+				<< "sim(Q,D" << el.first->getId() << ") "
+				<< el.second << endl;
+		}
 	};
 
 	/*for (size_t i=0; i<1000; i++) {
 		rank("ml");
 	}*/
+	rank("mla");
+	rank("ml");
 	rank("information retrieval");
 	rank("agency");
 
