@@ -9,9 +9,13 @@ set(SRCS_IO
 	program_options_reader_interface.h
 	program_options_reader.cpp
 	program_options_reader.h
+	simple_tokenizer.cpp
+	simple_tokenizer.h
 	stemmer_interface.h
 	text_input_reader.cpp
 	text_input_reader.h
+	tokenizer_base.cpp
+	tokenizer_base.h
 )
 
 add_library(io ${SRCS_IO})
