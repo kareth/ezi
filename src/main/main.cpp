@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <set>
@@ -43,11 +44,20 @@ int main(int argc, char* argv[]) {
 ///////////
 
 	auto rank = [&](const string& str) {
-		cout << endl;
-		cout << "query: " << str << endl;
+		typedef chrono::duration<int, micro> Duration;
+		cout << endl << "query: " << str << endl;
 		stringstream ss; ss << str;
+
+		auto startTimePoint = chrono::steady_clock::now();
+
 		auto vec = engine.rank(documentBuilder->createOne(ss));
-		cout << vec.size() << " results found" << endl;
+
+		auto endTimePoint = chrono::steady_clock::now();
+		auto duration = chrono::duration_cast<Duration>(endTimePoint - startTimePoint);
+
+		cout
+			<< vec.size() << " results found in "
+			<< duration.count() << " microseconds" << endl;
 		for (auto el : vec) {
 			cout << "\t"
 				<< "sim(Q,D" << el.first->getId() << ") "
