@@ -8,7 +8,7 @@
 
 class InputReaderInterface {
 public:
-	virtual std::shared_ptr<std::vector<std::shared_ptr<std::vector<std::string>>>>
+	virtual std::shared_ptr<std::vector<std::pair<std::string, std::vector<std::string>>>>
 		read(std::istream&) = 0;
 };
 

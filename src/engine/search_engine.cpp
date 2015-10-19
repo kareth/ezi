@@ -73,7 +73,7 @@ double SearchEngine::similarity(
 	double denominatorA = 0.0;
 	double denominatorB = 0.0;
 
-	for (auto keyword : *(dbPtr->getKeywords()->getStemmedContentPtr())) {
+	for (auto keyword : dbPtr->getKeywords()->getStemmedContent()) {
 		const double idf = idfs[keyword];
 		const double aTF = calculateTF(aDocBagOfWords.at(keyword), aMaxOccurencies);
 		const double bTF = calculateTF(bDocBagOfWords.at(keyword), bMaxOccurencies);
@@ -95,11 +95,11 @@ void SearchEngine::calculateBagOfWordsMap(shared_ptr<Document> documentPtr,
 
 	bow.clear();
 
-	for (string str : *(dbPtr->getKeywords()->getStemmedContentPtr())) {
+	for (string str : dbPtr->getKeywords()->getStemmedContent()) {
 		bow[str] = 0;
 	}
 
-	for (string word : *documentPtr->getStemmedContentPtr()) {
+	for (string word : documentPtr->getStemmedContent()) {
 		auto it = bow.find(word);
 		if (it != bow.end()) {
 			it->second++;

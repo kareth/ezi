@@ -13,6 +13,9 @@
 #include "io/input_reader_interface.h"
 #include "io/text_input_reader.h"
 
+#include "io/tokenizer_base.h"
+#include "io/simple_tokenizer.h"
+
 #include "io/stemmer_interface.h"
 #include "io/porter_stemmer.h"
 
@@ -32,9 +35,11 @@ int Application::run() {
 	if (programOptionsPtr == nullptr) return EXIT_SUCCESS;
 
 	unique_ptr<InputReaderInterface> inputReaderPtr(new TextInputReader);
+	unique_ptr<TokenizerBase> tokenizerPtr(new SimpleTokenizer);
 	unique_ptr<StemmerInterface> stemmerPtr(new PorterStemmer);
 
-	documentBuilderPtr= make_shared<DocumentBuilder>(move(inputReaderPtr), move(stemmerPtr));
+	documentBuilderPtr= make_shared<DocumentBuilder>(
+		move(inputReaderPtr), move(tokenizerPtr), move(stemmerPtr));
 
 	ifstream keywordsFile(programOptionsPtr->keywordsInputFile);
 	ifstream documentsFile(programOptionsPtr->documentsInputFile);
@@ -47,8 +52,11 @@ int Application::run() {
 
 ///////////////
 
-	for (auto str : programOptionsPtr->queries) {
+	/*for (auto str : programOptionsPtr->queries) {
 		rank(str);
+	}*/
+	for (size_t i=0; i<1000; ++i) {
+		rank("ml");
 	}
 
 	return EXIT_SUCCESS;

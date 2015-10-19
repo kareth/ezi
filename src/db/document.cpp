@@ -7,25 +7,23 @@
 
 using namespace std;
 
-Document::Document(size_t id, shared_ptr<vector<string>> stemmedContentPtr)
-	: id(id), stemmedContentPtr(stemmedContentPtr) {}
-
 Document::Document(size_t id)
-	: id(id), stemmedContentPtr(make_shared<vector<string>>()) {}
+	: id(id) {}
 
 DocumentBuilder::DocumentBuilder(unique_ptr<InputReaderInterface> inputReaderPtr,
+		unique_ptr<TokenizerBase> tokenizerPtr,
 		unique_ptr<StemmerInterface> stemmerPtr)
-	: inputReaderPtr(move(inputReaderPtr)), stemmerPtr(move(stemmerPtr)) {
+	: inputReaderPtr(move(inputReaderPtr)),
+		tokenizerPtr(move(tokenizerPtr)),
+		stemmerPtr(move(stemmerPtr)) {
 }
 
 shared_ptr<Document> DocumentBuilder::createOne(istream& is, size_t id) {
-	shared_ptr<Document> documentPtr = make_shared<Document>(id);
+	auto documentPtr = make_shared<Document>(id);
 
 	try {
-		shared_ptr<vector<string>> words = inputReaderPtr->read(is)->at(0);
-		for (size_t i=0; i<words->size(); ++i) {
-			documentPtr->getStemmedContentPtr()->push_back(stemmerPtr->stem(words->at(i)));
-		}
+		auto contents = inputReaderPtr->read(is);
+		updateDocument(contents->at(0), documentPtr);
 	} catch(out_of_range& e) {
 		cerr << e.what() << endl;
 	}
@@ -34,22 +32,37 @@ shared_ptr<Document> DocumentBuilder::createOne(istream& is, size_t id) {
 }
 
 shared_ptr<vector<shared_ptr<Document>>> DocumentBuilder::createMany(istream& is) {
-	shared_ptr<vector<shared_ptr<Document>>> documentPtrs
-		= make_shared<vector<shared_ptr<Document>>>();
+	auto documentPtrs = make_shared<vector<shared_ptr<Document>>>();
 
-	shared_ptr<vector<shared_ptr<vector<string>>>> words
-		= inputReaderPtr->read(is);
+	auto contentsPtr = inputReaderPtr->read(is);
 
-	for (size_t i=0; i<words->size(); ++i) {
+	for (size_t i=0; i<contentsPtr->size(); ++i) {
 		shared_ptr<Document> documentPtr = make_shared<Document>(i+1);
-
-		for (size_t j=0; j<words->at(i)->size(); ++j) {
-			documentPtr->getStemmedContentPtr()
-				->push_back(stemmerPtr->stem(words->at(i)->at(j)));
-		}
-
+		updateDocument(contentsPtr->at(i), documentPtr);
 		documentPtrs->push_back(documentPtr);
 	}
 
 	return documentPtrs;
+}
+
+void DocumentBuilder::updateDocument(
+		std::pair<std::string, std::vector<std::string>>& content,
+		std::shared_ptr<Document> docPtr) {
+
+	const string& title = content.first;
+	const vector<string>& body = content.second;
+
+	docPtr->getTitle() = title;
+
+	vector<string> tokens;
+	tokenizerPtr->tokenize(title, tokens);
+	for (auto token : tokens) {
+		docPtr->getStemmedContent().push_back(stemmerPtr->stem(token));
+	}
+	for (size_t i=0; i<body.size(); ++i) {
+		tokenizerPtr->tokenize(body[i], tokens);
+		for (auto token : tokens) {
+			docPtr->getStemmedContent().push_back(stemmerPtr->stem(token));
+		}
+	}
 }

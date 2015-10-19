@@ -10,37 +10,36 @@
 
 using namespace std;
 
-shared_ptr<vector<shared_ptr<vector<string>>>>
-TextInputReader::read(std::istream& is) {
-	shared_ptr<vector<shared_ptr<vector<string>>>> docsPtr
-		= make_shared<vector<shared_ptr<vector<string>>>>();
+shared_ptr<vector<pair<string, vector<string>>>> TextInputReader::read(
+		istream& is) {
 
-	vector<string> document;
+	shared_ptr<vector<pair<string, vector<string>>>> contents
+		= make_shared<vector<pair<string, vector<string>>>>();
+
+	string title;
+	vector<string> body;
 	while (is.good()) {
 		string line;
 		getline(is, line);
 		trim(line);
 		if (!line.empty()) {
-			vector<string> vs = split(line);
-			for (string& el : vs) {
-				normalize(el);
+			if (title.empty()) {
+				title = line;
+			} else {
+				body.push_back(line);
 			}
-			vs.erase(remove_if(vs.begin(), vs.end(), [](const string& str) {
-				return str.empty();
-			}), vs.end());
-			document.insert(document.end(), vs.begin(), vs.end());
-			// for (string el : vs) cout << "'" << el << "'" " "; cout << endl;
-		} else if (!document.empty()) {
-			docsPtr->push_back(make_shared<vector<string>>(document));
-			document.clear();
+		} else if (!title.empty()) {
+			contents->emplace_back(make_pair(title, body));
+			title.clear();
+			body.clear();
 		}
 	}
 
-	if (!document.empty()) {
-		docsPtr->push_back(make_shared<vector<string>>(document));
+	if (!title.empty()) {
+		contents->emplace_back(make_pair(title, body));
 	}
 
-	return docsPtr;
+	return contents;
 }
 
 string& TextInputReader::trim(string& str) {
@@ -53,32 +52,6 @@ string& TextInputReader::trim(string& str) {
 		return !std::isspace<char>(ch , locale::classic());
 	 } );
 	str.erase(str.begin(), it2);
-
-	return str;
-}
-
-vector<string> TextInputReader::split(const string& str, int delimiter(int)) {
-	vector<string> result;
-	auto e = str.end();
-	auto i = str.begin();
-	while (i != e){
-		i = find_if_not(i, e, delimiter);
-		if (i == e) break;
-		auto j = find_if(i, e, delimiter);
-		result.push_back(string(i,j));
-		i = j;
-	}
-	return result;
-}
-
-string& TextInputReader::normalize(string& str) {
-	trim(str);
-
-	transform(str.begin(), str.end(), str.begin(), ::tolower);
-
-	str.erase(remove_if(str.begin(), str.end(), [](char ch) {
-		return !isalpha(ch);
-	}), str.end());
 
 	return str;
 }

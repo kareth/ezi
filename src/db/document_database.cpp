@@ -24,10 +24,10 @@ shared_ptr<DocumentDatabase> DocumentDatabaseBuilder::create(istream& keywordsSt
 
 	shared_ptr<Document> keywords = documentBuilderPtr->createOne(keywordsStream);
 	unordered_set<string> uniqueKeywords(
-		keywords->getStemmedContentPtr()->begin(),
-		keywords->getStemmedContentPtr()->end());
+		keywords->getStemmedContent().begin(),
+		keywords->getStemmedContent().end());
 
-	keywords->getStemmedContentPtr() = make_shared<vector<string>>(
+	keywords->getStemmedContent() = vector<string>(
 		uniqueKeywords.begin(), uniqueKeywords.end());
 	
 	dbPtr->getKeywords() = keywords;
