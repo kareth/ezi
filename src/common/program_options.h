@@ -2,11 +2,13 @@
 #define SRC_COMMON_PROGRAM_OPTIONS_H_
 
 #include <string>
+#include <vector>
 
-class ProgramOptions {
-public:
+struct ProgramOptions {
 	std::string keywordsInputFile;
-	std::string documentInputFile;
+	std::string documentsInputFile;
+	std::vector<std::string> queries;
+	bool verbose;
 };
 
 #endif  // SRC_COMMON_PROGRAM_OPTIONS_H_
