@@ -1,6 +1,8 @@
 project(tsp)
 
 set(SRCS_MAIN
+	application.cpp
+	application.h
 	main.cpp
 )
 
