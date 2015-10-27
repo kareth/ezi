@@ -54,14 +54,13 @@ void DocumentBuilder::updateDocument(
 
 	docPtr->getTitle() = title;
 
-	vector<string> tokens;
-	tokenizerPtr->tokenize(title, tokens);
-	for (auto token : tokens) {
+	tokenizerPtr->tokenize(title, docPtr->getTokens());
+	for (auto token : docPtr->getTokens()) {
 		docPtr->getStemmedContent().push_back(stemmerPtr->stem(token));
 	}
 	for (size_t i=0; i<body.size(); ++i) {
-		tokenizerPtr->tokenize(body[i], tokens);
-		for (auto token : tokens) {
+		tokenizerPtr->tokenize(body[i], docPtr->getTokens());
+		for (auto token : docPtr->getTokens()) {
 			docPtr->getStemmedContent().push_back(stemmerPtr->stem(token));
 		}
 	}

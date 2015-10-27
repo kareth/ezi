@@ -17,6 +17,9 @@ public:
 	std::string& getTitle() { return title; }
 	const std::string& getTitle() const { return title; }
 
+	std::vector<std::string>& getTokens() { return tokens; }
+	const std::vector<std::string>& getTokens() const { return tokens; }
+
 	std::vector<std::string>& getStemmedContent()
 		{ return stemmedContent; }
 	const std::vector<std::string>& getStemmedContent() const
@@ -28,6 +31,7 @@ private:
 	size_t id;
 
 	std::string title;
+	std::vector<std::string> tokens;
 	std::vector<std::string> stemmedContent;
 };
 
