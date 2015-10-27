@@ -8,6 +8,7 @@ struct ProgramOptions {
 	std::string keywordsInputFile;
 	std::string documentsInputFile;
 	std::vector<std::string> queries;
+	std::vector<std::string> expandings;
 	bool verbose;
 };
 

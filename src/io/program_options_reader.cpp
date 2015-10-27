@@ -30,7 +30,10 @@ shared_ptr<ProgramOptions> ProgramOptionsReader::read(int argc, char* argv[]) {
 			"documents file")
 		("query",
 			po::value<vector<string>>(&programOptionsPtr->queries)->composing(),
-			"query");
+			"query")
+		("expand",
+			po::value<vector<string>>(&programOptionsPtr->expandings)->composing(),
+			"expand query");
 
 	try {
 		po::variables_map variablesMap;
