@@ -22,6 +22,7 @@
 #include "db/document_database.h"
 
 #include "engine/search_engine.h"
+#include "engine/query_expander.h"
 
 using namespace std;
 
@@ -49,15 +50,17 @@ int Application::run() {
 	if (dbPtr == nullptr) return EXIT_FAILURE;
 
 	searchEnginePtr = unique_ptr<SearchEngine>(new SearchEngine(dbPtr));
+	queryExpanderPtr = unique_ptr<QueryExpander>(new QueryExpander);
 
 ///////////////
 
 	for (auto str : programOptionsPtr->queries) {
 		rank(str);
 	}
-	/*for (size_t i=0; i<1000; ++i) {
-		rank("ml");
-	}*/
+
+	for (auto str : programOptionsPtr->expandings) {
+		expand(str);
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -79,6 +82,19 @@ void Application::rank(const string& str) {
 	for (auto el : vec) {
 		cout << "\t"
 			<< "sim(Q,D" << el.first->getId() << ") "
+			// << el.first->getTitle() << endl << "\t"
 			<< el.second << endl;
+	}
+}
+
+void Application::expand(const string& str) {
+	const size_t n = 10;
+
+	cout << endl << "expand: " << str << endl;
+	stringstream ss; ss << str;
+
+	auto vec = queryExpanderPtr->expand(documentBuilderPtr->createOne(ss), n);
+	for (auto el : vec) {
+		cout << "\t" << el << endl;
 	}
 }
